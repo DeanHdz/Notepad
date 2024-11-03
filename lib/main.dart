@@ -24,6 +24,7 @@ class MainApp extends StatelessWidget {
         '/note': (context) => const Note(),
         '/checklist': (context) => const Checklist(),
       },
+      initialRoute: '/login',
     );
   }
 }

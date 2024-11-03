@@ -107,6 +107,21 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                // Texto que redirige a la vista de registro
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/register');
+                  },
+                  child: const Text(
+                    '¿No tienes una cuenta?\n Regístrate',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     loginUser();
