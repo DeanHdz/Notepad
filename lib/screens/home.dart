@@ -117,6 +117,8 @@ class _HomeState extends State<Home> {
                 leading: const Icon(Icons.note),
                 title: const Text('Nota'),
                 onTap: () {
+                  //Ocultar el modal, evita que se quede en la pantalla al regresar
+                  Navigator.pop(context);
                   // Redirección para agregar un bloc de notas
                   Navigator.pushNamed(context, '/note');
                 },
@@ -125,6 +127,8 @@ class _HomeState extends State<Home> {
                 leading: const Icon(Icons.list),
                 title: const Text('Listado de tareas'),
                 onTap: () {
+                  //Ocultar el modal, evita que se quede en la pantalla al regresar
+                  Navigator.pop(context);
                   // Redirección para agregar listado de tareas
                   Navigator.pushNamed(context, '/checklist');
                 },

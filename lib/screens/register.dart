@@ -129,7 +129,7 @@ class _RegisterState extends State<Register> {
                 // Texto que redirige a la vista de login
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, '/login');
+                    Navigator.pushReplacementNamed(context, '/login');
                   },
                   child: const Text(
                     '¿Ya tienes una cuenta?\n Inicia sesión',
