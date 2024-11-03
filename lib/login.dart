@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:notepad/home.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -9,10 +8,12 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  String validationMessage = '';
-  bool isPasswordHidden = true;
+  TextEditingController emailController =
+      TextEditingController(); // Controlador para el campo de correo electrónico
+  TextEditingController passwordController =
+      TextEditingController(); // Controlador para el campo de contraseña
+  String validationMessage = ''; // Variable para mostrar mensajes de validación
+  bool isPasswordHidden = true; // Variable para ocultar/mostrar la contraseña
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +130,7 @@ class _LoginState extends State<Login> {
   }
 
   bool formIsValid() {
+    //Validar que los campos no estén vacíos
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       setState(() {
         validationMessage = 'Por favor, complete todos los campos';
@@ -136,6 +138,7 @@ class _LoginState extends State<Login> {
       return false;
     }
 
+    // Validar que el correo tenga un formato válido
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
         .hasMatch(emailController.text)) {
       setState(() {
@@ -144,6 +147,7 @@ class _LoginState extends State<Login> {
       return false;
     }
 
+    // Validar que la contraseña tenga al menos 6 caracteres
     if (passwordController.text.length < 6) {
       setState(() {
         validationMessage = 'La contraseña debe tener al menos 6 caracteres';
@@ -158,12 +162,12 @@ class _LoginState extends State<Login> {
   }
 
   void loginUser() {
+    //Validar formulario
     if (!formIsValid()) {
       return;
     }
 
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-      return const Home();
-    }));
+    // Redirigir a la vista de inicio
+    Navigator.pushReplacementNamed(context, '/');
   }
 }
