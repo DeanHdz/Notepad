@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'login.dart';
+//import 'package:notepad/register.dart';
+import 'package:notepad/login.dart';
 
 void main() {
   runApp(const MainApp());
