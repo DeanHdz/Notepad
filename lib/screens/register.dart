@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notepad/login.dart';
+import 'package:notepad/screens/login.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});

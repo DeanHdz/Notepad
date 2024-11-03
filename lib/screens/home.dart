@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+//import 'package:notepad/components/main_list_item.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -116,16 +117,16 @@ class _HomeState extends State<Home> {
                 leading: const Icon(Icons.note),
                 title: const Text('Nota'),
                 onTap: () {
-                  // Acción para agregar texto
-                  Navigator.pop(context); // Cierra el modal
+                  // Redirección para agregar un bloc de notas
+                  Navigator.pushNamed(context, '/note');
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.list),
                 title: const Text('Listado de tareas'),
                 onTap: () {
-                  // Acción para agregar listado
-                  Navigator.pop(context); // Cierra el modal
+                  // Redirección para agregar listado de tareas
+                  Navigator.pushNamed(context, '/checklist');
                 },
               ),
             ],
@@ -135,26 +136,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-
-
-/*
-
-Column(
-              children: <Widget>[
-                Card(
-                  color: const Color(0xFF3B3B3B),
-                  child: ListTile(
-                    title: Text('Nota 1',
-                        style: TextStyle(color: Colors.white, fontSize: 24)),
-                    subtitle: Text('Contenido de la nota',
-                        style: TextStyle(color: Colors.white, fontSize: 16)),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete, color: Colors.white),
-                      onPressed: () {},
-                    ),
-                  ),
-                ),
-              ]),
-
-*/

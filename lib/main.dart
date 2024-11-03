@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:notepad/home.dart';
-import 'package:notepad/profile.dart';
-import 'package:notepad/register.dart';
-import 'package:notepad/login.dart';
-import 'package:notepad/note.dart';
-import 'package:notepad/checklist.dart';
+import 'package:notepad/screens/home.dart';
+import 'package:notepad/screens/profile.dart';
+import 'package:notepad/screens/register.dart';
+import 'package:notepad/screens/login.dart';
+import 'package:notepad/screens/note.dart';
+import 'package:notepad/screens/checklist.dart';
 
 void main() {
   runApp(const MainApp());
