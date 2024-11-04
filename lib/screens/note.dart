@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 class Note extends StatefulWidget {
   const Note({super.key});
@@ -17,6 +18,14 @@ class _NoteState extends State<Note> {
         centerTitle: true,
         title: const Text('Nota',
             style: TextStyle(color: Colors.white, fontSize: 32)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              deleteNote();
+            },
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF252525),
       body: Padding(
@@ -43,5 +52,31 @@ class _NoteState extends State<Note> {
         ),
       ),
     );
+  }
+
+  // Eliminar la nota
+  void deleteNote() {
+    AwesomeDialog(
+      context: context,
+      dialogBackgroundColor: const Color(0xFF1E1E1E),
+      dialogType: DialogType.error,
+      headerAnimationLoop: false,
+      animType: AnimType.topSlide,
+      showCloseIcon: true,
+      closeIcon: const Icon(
+        Icons.close,
+        color: Colors.white,
+      ),
+      title: 'Borrar nota',
+      titleTextStyle: const TextStyle(color: Colors.white),
+      desc: '¿Deseas eliminar la nota?',
+      descTextStyle: const TextStyle(color: Colors.white),
+      btnCancelText: 'No',
+      btnCancelColor: const Color(0xFF3B3B3B),
+      btnOkText: 'Si',
+      btnOkColor: Colors.red,
+      btnCancelOnPress: () {},
+      btnOkOnPress: () {},
+    ).show();
   }
 }

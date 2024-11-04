@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notepad/screens/login.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -195,12 +195,26 @@ class _RegisterState extends State<Register> {
   }
 
   void registerUser() {
+    //Validar formulario
     if (!formIsValid()) {
       return;
     }
 
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-      return const Login();
-    }));
+    //Mostrar un diálogo de éxito
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.leftSlide,
+      headerAnimationLoop: false,
+      dialogType: DialogType.success,
+      showCloseIcon: true,
+      title: 'Creación exitosa',
+      desc: 'La cuenta ha sido creada. Por favor, inicia sesión',
+    ).show();
+
+    //Pausar la ejecución por 5 segundos
+    Future.delayed(const Duration(seconds: 5), () {
+      // Redirigir a la vista de inicio
+      Navigator.pushReplacementNamed(context, '/login');
+    });
   }
 }
