@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import '../services/auth_service.dart';
+import '../db/database_helper.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -164,6 +166,12 @@ class _RegisterState extends State<Register> {
   }
 
   bool formIsValid() {
+    //Remover espacio en blanco
+    usernameController.text = usernameController.text.trim();
+    emailController.text = emailController.text.trim();
+    passwordController.text = passwordController.text.trim();
+
+    // Validar que los campos no estén vacíos
     if (usernameController.text.isEmpty ||
         emailController.text.isEmpty ||
         passwordController.text.isEmpty) {
@@ -173,6 +181,7 @@ class _RegisterState extends State<Register> {
       return false;
     }
 
+    // Validar que el correo sea válido
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
         .hasMatch(emailController.text)) {
       setState(() {
@@ -181,6 +190,7 @@ class _RegisterState extends State<Register> {
       return false;
     }
 
+    // Validar que la contraseña tenga al menos 6 caracteres
     if (passwordController.text.length < 6) {
       setState(() {
         validationMessage = 'La contraseña debe tener al menos 6 caracteres';
@@ -194,27 +204,56 @@ class _RegisterState extends State<Register> {
     return true;
   }
 
-  void registerUser() {
-    //Validar formulario
+  Future<void> registerUser() async {
+    // Validar formulario
     if (!formIsValid()) {
       return;
     }
 
-    //Mostrar un diálogo de éxito
-    AwesomeDialog(
-      context: context,
-      animType: AnimType.leftSlide,
-      headerAnimationLoop: false,
-      dialogType: DialogType.success,
-      showCloseIcon: true,
-      title: 'Creación exitosa',
-      desc: 'La cuenta ha sido creada. Por favor, inicia sesión',
-    ).show();
+    // Obtener los valores de los campos de texto
+    String username = usernameController.text.trim();
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
 
-    //Pausar la ejecución por 5 segundos
-    Future.delayed(const Duration(seconds: 5), () {
+    // Verificar si el correo ya está registrado
+    bool emailExists = await DatabaseHelper().emailExists(email);
+    if (emailExists) {
+      setState(() {
+        validationMessage = 'El correo electrónico ya está registrado';
+      });
+      return;
+    }
+
+    // Crear el usuario
+    bool success = await AuthService().registerUser(username, email, password);
+    if (success) {
+      // Mostrar un diálogo de éxito
+      AwesomeDialog(
+        context: context,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.success,
+        showCloseIcon: true,
+        title: 'Creación exitosa',
+        desc: 'La cuenta ha sido creada. Por favor, inicia sesión',
+      ).show();
+
+      // Pausar la ejecución por 5 segundos
+      await Future.delayed(const Duration(seconds: 5));
+
       // Redirigir a la vista de inicio
       Navigator.pushReplacementNamed(context, '/login');
-    });
+    } else {
+      // Mostrar un diálogo de error
+      AwesomeDialog(
+        context: context,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.error,
+        showCloseIcon: true,
+        title: 'Error',
+        desc: 'Ha ocurrido un error al crear la cuenta',
+      ).show();
+    }
   }
 }

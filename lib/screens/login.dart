@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
+import '../services/auth_service.dart';
+import '../db/database_helper.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -17,6 +20,9 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    // Inicializa la base de datos cuando el widget de Login es construido
+    DatabaseHelper().database;
+
     return Scaffold(
       backgroundColor: const Color(0xFF252525),
       body: Center(
@@ -145,6 +151,10 @@ class _LoginState extends State<Login> {
   }
 
   bool formIsValid() {
+    // Limpiar espacios en blanco
+    emailController.text = emailController.text.trim();
+    passwordController.text = passwordController.text.trim();
+
     //Validar que los campos no estén vacíos
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       setState(() {
@@ -176,13 +186,39 @@ class _LoginState extends State<Login> {
     return true;
   }
 
-  void loginUser() {
-    //Validar formulario
+  Future<void> loginUser() async {
+    // Validar formulario
     if (!formIsValid()) {
       return;
     }
 
-    // Redirigir a la vista de inicio
-    Navigator.pushReplacementNamed(context, '/');
+    // Obtener los valores de los campos de texto
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+
+    try {
+      // Verificar las credenciales e Iniciar sesión
+      var user = await AuthService().loginUser(email, password);
+      if (user == null) {
+        setState(() {
+          validationMessage = 'Correo electrónico o contraseña incorrectos';
+        });
+        return;
+      }
+
+      // Redirigir a la vista de inicio
+      Navigator.pushReplacementNamed(context, '/');
+    } catch (error) {
+      // Mostrar un diálogo de error
+      AwesomeDialog(
+        context: context,
+        animType: AnimType.leftSlide,
+        headerAnimationLoop: false,
+        dialogType: DialogType.error,
+        showCloseIcon: true,
+        title: 'Error',
+        desc: 'Ha ocurrido un error al intentar iniciar sesión',
+      ).show();
+    }
   }
 }
