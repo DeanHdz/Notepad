@@ -211,6 +211,8 @@ class _LoginState extends State<Login> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
       await prefs.setInt('userId', user.id!);
+      await prefs.setString('username', user.username);
+      await prefs.setString('email', user.email);
 
       // Redirigir a la vista de inicio
       Navigator.pushReplacementNamed(context, '/');

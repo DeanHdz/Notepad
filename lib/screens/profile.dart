@@ -9,6 +9,23 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  String username = 'Nombre de Usuario';
+  String email = 'correo@correo.com';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username') ?? 'Nombre de Usuario';
+      email = prefs.getString('email') ?? 'correo@correo.com';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,16 +44,16 @@ class _ProfileState extends State<Profile> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               const Icon(Icons.account_circle, color: Colors.white, size: 100),
-              const Text(
-                'Nombre de usuario',
-                style: TextStyle(
+              Text(
+                username,
+                style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w400,
                     color: Colors.white),
               ),
-              const Text(
-                'correo@gmail.com',
-                style: TextStyle(
+              Text(
+                email,
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w300,
                     color: Colors.white),
