@@ -86,9 +86,9 @@ class _ProfileState extends State<Profile> {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.logout, color: Colors.black),
-                    const SizedBox(width: 10),
-                    const Text('Cerrar sesión',
+                    Icon(Icons.logout, color: Colors.black),
+                    SizedBox(width: 10),
+                    Text('Cerrar sesión',
                         style: TextStyle(color: Colors.black)),
                   ],
                 ),
