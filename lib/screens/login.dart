@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import '../services/auth_service.dart';
-import '../db/database_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
@@ -21,9 +20,6 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    // Inicializa la base de datos cuando el widget de Login es construido
-    DatabaseHelper().database;
-
     return Scaffold(
       backgroundColor: const Color(0xFF252525),
       body: Center(

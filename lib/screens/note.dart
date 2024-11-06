@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Note extends StatefulWidget {
   const Note({super.key});
@@ -9,6 +10,9 @@ class Note extends StatefulWidget {
 }
 
 class _NoteState extends State<Note> {
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController contentController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,9 +20,17 @@ class _NoteState extends State<Note> {
         backgroundColor: const Color(0xFF3B3B3B),
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
-        title: const Text('Nota',
-            style: TextStyle(color: Colors.white, fontSize: 32)),
+        title: const Text(
+          'Nota',
+          style: TextStyle(color: Colors.white, fontSize: 32),
+        ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () {
+              saveNote();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () {
@@ -31,22 +43,38 @@ class _NoteState extends State<Note> {
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text(
-              'Titulo',
-              style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white),
+            TextField(
+              controller: titleController,
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w400,
+                color: Colors.white,
+              ),
+              decoration: const InputDecoration(
+                hintText: 'Título',
+                hintStyle: TextStyle(color: Colors.white54),
+                border: InputBorder.none,
+              ),
             ),
-            SizedBox(height: 20),
-            const Text(
-              'Escribe algo...',
-              style: TextStyle(
+            const SizedBox(height: 20),
+            Expanded(
+              child: TextField(
+                controller: contentController,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w300,
-                  color: Colors.white),
+                  color: Colors.white,
+                ),
+                decoration: const InputDecoration(
+                  hintText: 'Escribe algo...',
+                  hintStyle: TextStyle(color: Colors.white54),
+                  border: InputBorder.none,
+                ),
+                maxLines: null, // Permite múltiples líneas
+                keyboardType: TextInputType.multiline,
+              ),
             ),
           ],
         ),
@@ -76,7 +104,35 @@ class _NoteState extends State<Note> {
       btnOkText: 'Si',
       btnOkColor: Colors.red,
       btnCancelOnPress: () {},
-      btnOkOnPress: () {},
+      btnOkOnPress: () {
+        // Lógica para eliminar la nota
+      },
     ).show();
+  }
+
+  // Guardar la nota
+  void saveNote() {
+    final String title = titleController.text;
+    final String content = contentController.text;
+
+    //FALTA: Lógica para guardar la nota. Debe verificar si anteriormente ya fue guardada o no.
+
+    // Mostrar toast de confirmación
+    Fluttertoast.showToast(
+      msg: 'Nota guardada',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: const Color(0xFF3B3B3B),
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    contentController.dispose();
+    super.dispose();
   }
 }

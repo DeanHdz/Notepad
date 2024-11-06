@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
-//import 'package:notepad/components/main_list_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/checklist_service.dart';
+import '../models/checklist_model.dart';
+import '../services/note_service.dart';
+import '../models/note_model.dart';
+import 'package:group_list_view/group_list_view.dart';
+import 'package:notepad/components/main_list_item.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -9,7 +15,39 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String listado = ''; // Contiene todas las Notas y listas de tareas
+  // Elementos de la lista
+  Map<String, List<dynamic>> listElements = {
+    'Notes': <Note>[],
+    'Checklists': <Checklist>[]
+  };
+
+  List<Note> notes = List.empty(); // Contiene todas las Notas
+  List<Checklist> checklists = List.empty(); // Contiene listas de tareas
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserContent();
+  }
+
+  Future<void> _loadUserContent() async {
+    // Obtener las preferencias del usuario, este contiene los datos de la sesión
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    //Consultar las notas y tareas del usuario
+    List<Note> obtainedNotes =
+        await NoteService().getNotes(prefs.getInt('userId') ?? 0);
+    List<Checklist> obtainedChecklists =
+        await ChecklistService().getChecklists(prefs.getInt('userId') ?? 0);
+
+    // Cargar las notas y tareas del usuario
+    setState(() {
+      notes = obtainedNotes;
+      checklists = obtainedChecklists;
+      listElements['Notes'] = notes;
+      listElements['Checklists'] = checklists;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +83,7 @@ class _HomeState extends State<Home> {
       body: Column(
         children: [
           Expanded(
-            child: listado.isEmpty
+            child: notes.isEmpty || checklists.isEmpty
                 ? const Center(
                     child: Text(
                       'No tienes notas o listas, agrega una nueva presionando el botón de abajo',
@@ -62,36 +100,56 @@ class _HomeState extends State<Home> {
                           vertical: 20, horizontal: 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: listado
-                            .split('\n')
-                            .map((item) => Card(
-                                  color: const Color(0xFF3B3B3B),
-                                  child: ListTile(
-                                    title: Text(item,
-                                        style: const TextStyle(
-                                            color: Colors.white, fontSize: 24)),
-                                    subtitle: const Text('Contenido de la nota',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 16)),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.delete,
-                                          color: Colors.white),
-                                      onPressed: () {
-                                        setState(() {
-                                          listado =
-                                              listado.replaceAll('$item\n', '');
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ))
-                            .toList(),
+                        children: [
+                          GroupListView(
+                            sectionsCount: listElements.keys.toList().length,
+                            countOfItemInSection: (int section) {
+                              return listElements.values
+                                  .toList()[section]
+                                  .length;
+                            },
+                            itemBuilder: _itemBuilder,
+                            groupHeaderBuilder:
+                                (BuildContext context, int section) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 8),
+                                child: Text(
+                                  listElements.keys.toList()[section],
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              );
+                            },
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 10),
+                            sectionSeparatorBuilder: (context, section) =>
+                                const SizedBox(height: 10),
+                          ),
+                        ],
                       ),
                     ),
                   ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _itemBuilder(BuildContext context, IndexPath index) {
+    final item = listElements.values.toList()[index.section][index.index];
+    final itemType = listElements.keys.toList()[index.section];
+
+    return MainListItem(
+      item: item,
+      onTap: () {
+        if (itemType == 'Checklists') {
+          Navigator.pushNamed(context, '/checklist', arguments: item);
+        } else if (itemType == 'Notes') {
+          Navigator.pushNamed(context, '/note', arguments: item);
+        }
+      },
     );
   }
 
@@ -114,7 +172,7 @@ class _HomeState extends State<Home> {
               ),
               const SizedBox(height: 20),
               ListTile(
-                leading: const Icon(Icons.note),
+                leading: const Icon(Icons.note_add),
                 title: const Text('Nota'),
                 onTap: () {
                   //Ocultar el modal, evita que se quede en la pantalla al regresar
