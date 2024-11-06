@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import '../services/auth_service.dart';
 import '../db/database_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -205,6 +206,11 @@ class _LoginState extends State<Login> {
         });
         return;
       }
+
+      // Guardar el ID del usuario en las preferencias compartidas
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+      await prefs.setInt('userId', user.id!);
 
       // Redirigir a la vista de inicio
       Navigator.pushReplacementNamed(context, '/');

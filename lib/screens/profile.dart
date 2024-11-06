@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -59,7 +60,7 @@ class _ProfileState extends State<Profile> {
                 ),
               ),*/
               ElevatedButton(
-                onPressed: () {},
+                onPressed: logout,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 212, 212, 212),
                   padding:
@@ -80,5 +81,13 @@ class _ProfileState extends State<Profile> {
         ),
       ),
     );
+  }
+
+  Future<void> logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Limpia todos los datos de sesión
+
+    // Redirige al usuario a la pantalla de inicio de sesión
+    Navigator.pushReplacementNamed(context, '/login');
   }
 }
