@@ -26,4 +26,9 @@ class Checklist {
       title: map['title'],
     );
   }
+
+  @override
+  String toString() {
+    return 'Checklist: $id - $userId - $title';
+  }
 }

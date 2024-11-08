@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class MainListItem extends StatelessWidget {
   final dynamic item;
+  final VoidCallback onTap;
 
-  const MainListItem(
-      {super.key, required this.item, required Null Function() onTap});
+  const MainListItem({super.key, required this.item, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -21,29 +21,34 @@ class MainListItem extends StatelessWidget {
         break;
     }
 
-    return Card(
-      color: const Color(0xFF3B3B3B),
+    return Container(
+      color: const Color(0xFF131313),
       child: ListTile(
+        leading: Container(
+          width: 6,
+          color: const Color(0xFFFFB700),
+        ),
         title: Text(
           title,
           style: const TextStyle(color: Colors.white, fontSize: 24),
         ),
-        subtitle: description != ''
+        /*subtitle: description != ''
             ? Text(
                 truncateDescription(description),
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               )
-            : null, // Si no hay descripción, se omite el subtítulo
+            : null,*/ // Si no hay descripción, se omite el subtítulo
         trailing: Icon(
           getIcon(itemType),
           color: Colors.white,
         ),
+        onTap: onTap,
       ),
     );
   }
 
   // Método para truncar la descripción
-  String truncateDescription(String description, {int maxLength = 50}) {
+  String truncateDescription(String description, {int maxLength = 20}) {
     if (description.length <= maxLength) {
       return description;
     }
@@ -54,7 +59,7 @@ class MainListItem extends StatelessWidget {
   IconData getIcon(String itemType) {
     switch (itemType) {
       case 'Note':
-        return Icons.note;
+        return Icons.sticky_note_2;
       case 'Checklist':
         return Icons.checklist;
       default:

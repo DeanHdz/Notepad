@@ -15,14 +15,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // Elementos de la lista
   Map<String, List<dynamic>> listElements = {
-    'Notes': <Note>[],
-    'Checklists': <Checklist>[]
+    'Notas': <Note>[],
+    'Tareas': <Checklist>[]
   };
 
-  List<Note> notes = List.empty(); // Contiene todas las Notas
-  List<Checklist> checklists = List.empty(); // Contiene listas de tareas
+  List<Note> notes = [];
+  List<Checklist> checklists = [];
+  bool isLoading = true; // Indicador de carga
 
   @override
   void initState() {
@@ -31,21 +31,22 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _loadUserContent() async {
-    // Obtener las preferencias del usuario, este contiene los datos de la sesión
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isLoading = true; // Muestra el indicador de carga
+    });
 
-    //Consultar las notas y tareas del usuario
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     List<Note> obtainedNotes =
         await NoteService().getNotes(prefs.getInt('userId') ?? 0);
     List<Checklist> obtainedChecklists =
         await ChecklistService().getChecklists(prefs.getInt('userId') ?? 0);
 
-    // Cargar las notas y tareas del usuario
     setState(() {
       notes = obtainedNotes;
       checklists = obtainedChecklists;
-      listElements['Notes'] = notes;
-      listElements['Checklists'] = checklists;
+      listElements['Notas'] = notes;
+      listElements['Tareas'] = checklists;
+      isLoading = false; // Oculta el indicador de carga
     });
   }
 
@@ -70,8 +71,9 @@ class _HomeState extends State<Home> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          addItem(context);
+        onPressed: () async {
+          await addItem(context);
+          await _loadUserContent(); // Recarga los datos después de añadir un nuevo elemento
         },
         backgroundColor: const Color(0xFFFFC000),
         child: const Icon(
@@ -80,32 +82,33 @@ class _HomeState extends State<Home> {
         ),
       ),
       backgroundColor: const Color(0xFF252525),
-      body: Column(
-        children: [
-          Expanded(
-            child: notes.isEmpty || checklists.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No tienes notas o listas, agrega una nueva presionando el botón de abajo',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w200),
-                    ),
-                  )
-                : SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 20, horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GroupListView(
-                            sectionsCount: listElements.keys.toList().length,
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                  color: Colors.white), // Indicador de carga
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: notes.isEmpty && checklists.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'No tienes notas o listas, agrega una nueva presionando el botón de abajo',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w200),
+                          ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20, horizontal: 16),
+                          child: GroupListView(
+                            sectionsCount: listElements.keys.length,
                             countOfItemInSection: (int section) {
                               return listElements.values
-                                  .toList()[section]
+                                  .elementAt(section)
                                   .length;
                             },
                             itemBuilder: _itemBuilder,
@@ -115,8 +118,9 @@ class _HomeState extends State<Home> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 15, vertical: 8),
                                 child: Text(
-                                  listElements.keys.toList()[section],
+                                  listElements.keys.elementAt(section),
                                   style: const TextStyle(
+                                      color: Colors.white,
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600),
                                 ),
@@ -127,13 +131,10 @@ class _HomeState extends State<Home> {
                             sectionSeparatorBuilder: (context, section) =>
                                 const SizedBox(height: 10),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-          ),
-        ],
-      ),
+                        ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -143,18 +144,19 @@ class _HomeState extends State<Home> {
 
     return MainListItem(
       item: item,
-      onTap: () {
-        if (itemType == 'Checklists') {
-          Navigator.pushNamed(context, '/checklist', arguments: item);
-        } else if (itemType == 'Notes') {
-          Navigator.pushNamed(context, '/note', arguments: item);
+      onTap: () async {
+        if (itemType == 'Tareas') {
+          await Navigator.pushNamed(context, '/checklist', arguments: item);
+        } else if (itemType == 'Notas') {
+          await Navigator.pushNamed(context, '/note', arguments: item);
         }
+        _loadUserContent(); // Recarga los datos después de regresar a la vista de inicio
       },
     );
   }
 
-  void addItem(BuildContext context) {
-    showModalBottomSheet(
+  Future<void> addItem(BuildContext context) async {
+    await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -162,7 +164,7 @@ class _HomeState extends State<Home> {
       builder: (BuildContext context) {
         return Container(
           padding: const EdgeInsets.all(16),
-          height: 200, // Altura del modal
+          height: 200,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -174,21 +176,19 @@ class _HomeState extends State<Home> {
               ListTile(
                 leading: const Icon(Icons.note_add),
                 title: const Text('Nota'),
-                onTap: () {
-                  //Ocultar el modal, evita que se quede en la pantalla al regresar
+                onTap: () async {
                   Navigator.pop(context);
-                  // Redirección para agregar un bloc de notas
-                  Navigator.pushNamed(context, '/note');
+                  await Navigator.pushNamed(context, '/note');
+                  _loadUserContent(); // Recarga los datos después de agregar una nota
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.list),
                 title: const Text('Listado de tareas'),
-                onTap: () {
-                  //Ocultar el modal, evita que se quede en la pantalla al regresar
+                onTap: () async {
                   Navigator.pop(context);
-                  // Redirección para agregar listado de tareas
-                  Navigator.pushNamed(context, '/checklist');
+                  await Navigator.pushNamed(context, '/checklist');
+                  _loadUserContent(); // Recarga los datos después de agregar una tarea
                 },
               ),
             ],

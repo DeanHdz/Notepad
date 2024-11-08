@@ -1,8 +1,8 @@
 class Note {
   final int? id;
   final int userId;
-  final String title;
-  final String description;
+  String title;
+  String description;
 
   Note({
     this.id,
@@ -27,5 +27,10 @@ class Note {
       title: map['title'],
       description: map['description'],
     );
+  }
+
+  @override
+  String toString() {
+    return 'Note: $id - $userId - $title - $description';
   }
 }
