@@ -16,7 +16,7 @@ class _NoteState extends State<Note> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
-  dynamic item; // Almacenar el argumento recibido (Nota o Checklist)
+  dynamic item; // Almacenar el argumento recibido (nota)
 
   @override
   void didChangeDependencies() {

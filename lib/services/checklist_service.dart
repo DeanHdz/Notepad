@@ -6,10 +6,10 @@ class ChecklistService {
   /////// Métodos para interactuar con la tabla de checklists ///////
 
   // Método para crear un nuevo checklist
-  Future<bool> createChecklist(int userId, String title) async {
+  Future<int> createChecklist(int userId, String title) async {
     Checklist checklist = Checklist(userId: userId, title: title);
     int checklistId = await DatabaseHelper().createChecklist(checklist);
-    return checklistId > 0;
+    return checklistId;
   }
 
   // Método para obtener todos los checklists de un usuario
@@ -32,11 +32,11 @@ class ChecklistService {
   /////// Métodos para interactuar con la tabla de checklist items ///////
 
   // Método para crear un nuevo item de checklist
-  Future<bool> createChecklistItem(int checklistId, String content) async {
+  Future<int> createChecklistItem(int checklistId, String content) async {
     ChecklistItem checklistItem = ChecklistItem(
         checklistId: checklistId, content: content, isDone: false);
     int itemId = await DatabaseHelper().createChecklistItem(checklistItem);
-    return itemId > 0;
+    return itemId;
   }
 
   // Método para obtener un item de checklist por su id

@@ -1,7 +1,7 @@
 class ChecklistItem {
   final int? id;
-  final int checklistId;
-  final String content;
+  int checklistId;
+  String content;
   bool isDone;
 
   ChecklistItem({

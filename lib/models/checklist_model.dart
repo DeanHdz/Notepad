@@ -1,7 +1,7 @@
 class Checklist {
   final int? id;
   final int userId;
-  final String title;
+  String title;
 
   Checklist({
     this.id,

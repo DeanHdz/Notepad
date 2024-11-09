@@ -103,7 +103,7 @@ class _HomeState extends State<Home> {
                         )
                       : Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 16),
+                              vertical: 20, horizontal: 0),
                           child: GroupListView(
                             sectionsCount: listElements.keys.length,
                             countOfItemInSection: (int section) {
