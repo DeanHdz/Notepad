@@ -32,9 +32,10 @@ class ChecklistService {
   /////// Métodos para interactuar con la tabla de checklist items ///////
 
   // Método para crear un nuevo item de checklist
-  Future<int> createChecklistItem(int checklistId, String content) async {
+  Future<int> createChecklistItem(
+      int checklistId, String content, bool isDone) async {
     ChecklistItem checklistItem = ChecklistItem(
-        checklistId: checklistId, content: content, isDone: false);
+        checklistId: checklistId, content: content, isDone: isDone);
     int itemId = await DatabaseHelper().createChecklistItem(checklistItem);
     return itemId;
   }

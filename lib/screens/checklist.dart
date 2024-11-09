@@ -18,8 +18,41 @@ class _ChecklistState extends State<Checklist> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController taskController = TextEditingController();
   List<ChecklistItemModel.ChecklistItem> tasks = [];
+  List<ChecklistItemModel.ChecklistItem> tasksToDelete = [];
+  bool isLoading = true; // Indicador de carga
 
   dynamic item; // Almacenar el argumento recibido (lista de tareas)
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Recuperar el argumento de la ruta
+    item = ModalRoute.of(context)?.settings.arguments;
+    // Si el argumento no es nulo, cargar los datos de la nota
+    if (item != null) {
+      titleController.text = item.title;
+      _loadChecklistItems();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _loadChecklistItems() async {
+    setState(() {
+      isLoading = true; // Muestra el indicador de carga
+    });
+
+    List<ChecklistItemModel.ChecklistItem> obtainedChecklistItems =
+        await ChecklistService().getChecklistItems(item.id ?? 0);
+
+    setState(() {
+      tasks = obtainedChecklistItems;
+      isLoading = false; // Oculta el indicador de carga
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +62,7 @@ class _ChecklistState extends State<Checklist> {
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         title: const Text('Listado de tareas',
-            style: TextStyle(color: Colors.white, fontSize: 32)),
+            style: TextStyle(color: Colors.white, fontSize: 24)),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
@@ -69,6 +102,7 @@ class _ChecklistState extends State<Checklist> {
                 itemBuilder: (context, index) {
                   final task = tasks[index];
                   return TaskListItem(
+                    id: task.id ?? 0,
                     content: task.content,
                     isDone: task.isDone,
                     onChanged: (isSelected) {
@@ -78,7 +112,7 @@ class _ChecklistState extends State<Checklist> {
                     },
                     onDelete: () {
                       setState(() {
-                        tasks.removeAt(index);
+                        removeTask(index);
                       });
                     },
                   );
@@ -103,15 +137,7 @@ class _ChecklistState extends State<Checklist> {
                   icon: const Icon(Icons.add, color: Colors.white),
                   onPressed: () {
                     if (taskController.text.isNotEmpty) {
-                      setState(() {
-                        tasks.add(ChecklistItemModel.ChecklistItem(
-                          id: 0,
-                          checklistId: 0,
-                          content: taskController.text,
-                          isDone: false,
-                        ));
-                        taskController.clear();
-                      });
+                      addTask();
                     } else {
                       Fluttertoast.showToast(
                         msg: 'La tarea no puede estar vacía',
@@ -127,6 +153,29 @@ class _ChecklistState extends State<Checklist> {
         ),
       ),
     );
+  }
+
+  // Agregar una tarea a la lista
+  Future<void> addTask() async {
+    final String content = taskController.text;
+
+    ChecklistItemModel.ChecklistItem task = ChecklistItemModel.ChecklistItem(
+      id: 0,
+      checklistId: item == null ? 0 : item.id,
+      content: content,
+      isDone: false,
+    );
+    setState(() {
+      tasks.add(task);
+    });
+    taskController.clear();
+  }
+
+  void removeTask(int index) {
+    setState(() {
+      tasksToDelete.add(tasks[index]);
+      tasks.removeAt(index);
+    });
   }
 
   // Eliminar la nota
@@ -198,7 +247,17 @@ class _ChecklistState extends State<Checklist> {
       if (checklistId > 0) {
         for (ChecklistItemModel.ChecklistItem task in tasks) {
           task.checklistId = checklistId;
-          await ChecklistService().updateChecklistItem(task);
+          if (task.id == 0) {
+            await ChecklistService()
+                .createChecklistItem(checklistId, task.content, task.isDone);
+          } else {
+            await ChecklistService().updateChecklistItem(task);
+          }
+        }
+        for (ChecklistItemModel.ChecklistItem task in tasksToDelete) {
+          if (task.id != 0) {
+            await ChecklistService().deleteChecklistItem(task.id!);
+          }
         }
         toastExito();
       } else {
@@ -206,13 +265,23 @@ class _ChecklistState extends State<Checklist> {
       }
     } else {
       ChecklistModel.Checklist checklist = item as ChecklistModel.Checklist;
+      int checklistId = item.id;
       checklist.title = title;
       await ChecklistService().updateChecklist(checklist)
           ? toastExito()
           : toastError();
       for (ChecklistItemModel.ChecklistItem task in tasks) {
-        task.checklistId = item.id;
-        await ChecklistService().updateChecklistItem(task);
+        if (task.id == 0) {
+          await ChecklistService()
+              .createChecklistItem(checklistId, task.content, task.isDone);
+        } else {
+          await ChecklistService().updateChecklistItem(task);
+        }
+      }
+      for (ChecklistItemModel.ChecklistItem task in tasksToDelete) {
+        if (task.id != 0) {
+          await ChecklistService().deleteChecklistItem(task.id!);
+        }
       }
     }
 

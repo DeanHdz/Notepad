@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
 class TaskListItem extends StatefulWidget {
+  final int id;
   final String content;
   final bool isDone;
   final ValueChanged<bool> onChanged;
@@ -9,6 +10,7 @@ class TaskListItem extends StatefulWidget {
 
   const TaskListItem({
     super.key,
+    required this.id,
     required this.content,
     required this.isDone,
     required this.onChanged,
